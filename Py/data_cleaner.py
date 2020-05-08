@@ -24,7 +24,7 @@ lista_feriados = l_feriados.holidays(df_count_day_subject['judgmentDate'].min(),
 lista_weekends = pd.to_datetime(df_count_day_subject[df_count_day_subject['day_week'] >= 5]['judgmentDate'].to_list()).drop_duplicates()
 lista_feriados_weekends = lista_feriados.append(lista_weekends)
 df_count_day_subject['work_day'] = df_count_day_subject['judgmentDate'].apply(lambda x: x not in lista_feriados_weekends)
-df_count_day_subject['subject_decoded'] = df_count_day_subject['subject'].apply(lambda x: codecs.decode(str(x), 'unicode_escape').encode('ISO-8859-1').decode('UTF-8'))
+df_count_day_subject['subject_decoded'] = df_count_day_subject['subject'].apply(lambda x: codecs.decode(str(x).lower(), 'unicode_escape').encode('ISO-8859-1').decode('UTF-8'))
 
 del df_count_day_subject['subject']
 
