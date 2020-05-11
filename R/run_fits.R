@@ -47,25 +47,45 @@ tb_jurimetrics_adj <- tb_jurimetrics_adj %>% group_by(subject_decoded,year,month
 # cria df com assuntos  
 df_subject <- tb_jurimetrics_adj[,1] %>% select(subject_decoded) %>% group_by(subject_decoded) %>% distinct()
 #  cria df com assuntos
-df_subject <- tb_jurimetrics_adj[,1] %>% group_by(subject_decoded) %>% tally() %>% filter(n > 5)
+df_subject <- tb_jurimetrics_adj[,1] %>% group_by(subject_decoded) %>% tally() %>% filter(n > 12)
 df_subject <- df_subject$subject_decoded
 
+l <- list() 
 
-assunto <- "partido político"
-t <- run_fits(tb_jurimetrics_adj,assunto)
+for (i in 1:length(df_subject)) {
+  ts_1 <- tb_jurimetrics_adj %>% filter(subject_decoded == df_subject[i])
+  ts(ts_1[,4])
+  t <- fits(ts(ts_1[,4]),train = 0.85,show.main.graph = F,show.sec.graph = F) 
+  
+  l[[df_subject[[i]]]] <- t
+}
+
+i <- 272
+ts_1 <- tb_jurimetrics_adj %>% filter(subject_decoded == df_subject[i])
+ts(ts_1[,4])
+t <- fits(ts(ts_1[,4]),train = 0.85,show.main.graph = F,show.sec.graph = F) 
 
 
-fnc_eval_err(t$y_pred,t$y,'R-Squared')
-fnc_eval_err(t$y_pred,t$y)
+
+
+
+
+
+
+
+
 
 
 t_list <- tibble(assunto,t[1],t[2],t[3],t[4])
 
 assunto <- "1"
-t <- run_fits(tb_jurimetrics_adj,assunto)
+t <- run_fits(assunto,tb_jurimetrics_adj)
+
 class(t)
 
-t[1]
+asas<- data.frame('Subject' = df_subject[1], 'fcast' = t$fcast)
+
+t$fcast
 
 t_list <- t_list %>% add_row(assunto,t[1],t[2],t[3],t[4])
 
@@ -81,15 +101,55 @@ df_subject$subject_decoded[2]
 
 df_subject
 
-for(i in 1:10){
+for(i in 1:20){
   row <- df_subject[i]
-  #print(row)
+  print(row)
   run_fits(tb_jurimetrics_adj,row)
   # do stuff with row
 }
 
 
-run_fits(tb_jurimetrics_adj,assunto)
+x <- run_fits(df_subject,tb_jurimetrics_adj)
+
+class(x[1])
+
+xxx <- tibble()
+
+
+xxx <- rbind(xxx, data.frame(assunto = 'yyyyyy',x$fcast))
+
+
+xxx <- tibble(data.frame(assunto = 'xx',x$fcast))
+xxx <- data.frame(assunto = 'xxxxxxxxxxx',x$fcast)
+
+
+xxx <- data.frame('xx',
+           x$fcast)
+
+class(xxx)
+
+x$fcast
+x$all_fnc_err
+x$aic
+x$best.model
+
+
+
+'Point_Forecast' = x[1]
+
+
+x$mse.pred
+list('xxx','Best_model' = x[5],'Point_Forecast' = x[1],'MSE' = x[2],'fnc_erros' = x[3],'AIC' = x[4]) %% 
+
+
+
+
+list(x$best.model,x[1],x$all_fnc_err,x$aic) %>% tibble()
+  
+tibble(x$best.model,x$fcast,x$all_fnc_err,x$aic)
+
+%>% add_row(x$best.model,x$fcast,x$all_fnc_err,x$aic)
+
 
 apply(df_subject, 1, run_fits())
 

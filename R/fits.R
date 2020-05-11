@@ -44,13 +44,6 @@
 
 
 
-run_fits <- function(df, x) {
-  ts_1 <- df %>% filter(subject_decoded == x)
-  print(ts_1)
-  fits(ts(ts_1[,4]),train = 0.85)
-}
-
-
 
 fnc_eval_err <- 
   function(y_pred, y, fnc='Todos') {
