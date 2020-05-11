@@ -39,9 +39,20 @@ tb_subject_decoded_ini_end_row <- tb_subject_decoded_ini_end_col %>% group_by(su
 
 # concatena o df original e o df com as datas com valores zerados 
 tb_jurimetrics_adj = bind_rows(tb_jurimetrics %>% select(subject_decoded,date,count), tb_subject_decoded_ini_end_row)
+write.table(tb_jurimetrics_adj , file = "C:\\PUCRS\\Especialização\\Jurimetrics\\jurimetrics\\data\\tb_jurimetrics_adj.csv")
+
+
+col_name <- colnames(tb_jurimetrics_adj)
+
+'subject_decoded'        date       count
+
+#write_excel_csv2(tb_jurimetrics_adj, "C:\\PUCRS\\Especialização\\Jurimetrics\\jurimetrics\\data\\tb_jurimetrics_adj.csv", na = "", append = FALSE,col_names = col_name, delim = ";", quote_escape = "double")
+
+
 tb_jurimetrics_adj <- tb_jurimetrics_adj %>% mutate(year = lubridate::year(date),month = lubridate::month(date)) 
 tb_jurimetrics_adj <- tb_jurimetrics_adj %>% group_by(subject_decoded,year,month) %>% summarise(tot_proc_month = sum(count)) %>% arrange(subject_decoded,year,month)
 #tb_jurimetrics_adj$tot_proc_month
+
 
 
 # cria df com assuntos  
@@ -64,204 +75,4 @@ i <- 272
 ts_1 <- tb_jurimetrics_adj %>% filter(subject_decoded == df_subject[i])
 ts(ts_1[,4])
 t <- fits(ts(ts_1[,4]),train = 0.85,show.main.graph = F,show.sec.graph = F) 
-
-
-
-
-
-
-
-
-
-
-
-
-t_list <- tibble(assunto,t[1],t[2],t[3],t[4])
-
-assunto <- "1"
-t <- run_fits(assunto,tb_jurimetrics_adj)
-
-class(t)
-
-asas<- data.frame('Subject' = df_subject[1], 'fcast' = t$fcast)
-
-t$fcast
-
-t_list <- t_list %>% add_row(assunto,t[1],t[2],t[3],t[4])
-
-#t_list$`t[2]`[[2]][2]
-
-#1:nrow(df_subject[3,])
-
-nrow(df_subject%>%head(5))
-
-nrow(df_subject%>%head(5))
-
-df_subject$subject_decoded[2]
-
-df_subject
-
-for(i in 1:20){
-  row <- df_subject[i]
-  print(row)
-  run_fits(tb_jurimetrics_adj,row)
-  # do stuff with row
-}
-
-
-x <- run_fits(df_subject,tb_jurimetrics_adj)
-
-class(x[1])
-
-xxx <- tibble()
-
-
-xxx <- rbind(xxx, data.frame(assunto = 'yyyyyy',x$fcast))
-
-
-xxx <- tibble(data.frame(assunto = 'xx',x$fcast))
-xxx <- data.frame(assunto = 'xxxxxxxxxxx',x$fcast)
-
-
-xxx <- data.frame('xx',
-           x$fcast)
-
-class(xxx)
-
-x$fcast
-x$all_fnc_err
-x$aic
-x$best.model
-
-
-
-'Point_Forecast' = x[1]
-
-
-x$mse.pred
-list('xxx','Best_model' = x[5],'Point_Forecast' = x[1],'MSE' = x[2],'fnc_erros' = x[3],'AIC' = x[4]) %% 
-
-
-
-
-list(x$best.model,x[1],x$all_fnc_err,x$aic) %>% tibble()
-  
-tibble(x$best.model,x$fcast,x$all_fnc_err,x$aic)
-
-%>% add_row(x$best.model,x$fcast,x$all_fnc_err,x$aic)
-
-
-apply(df_subject, 1, run_fits())
-
-
-
-
-dim(distinct(tb_jurimetrics_adj, subject_decoded))
-
-for(i in 1:nrow(d)) {
-  row <- d[i,]
-  print(row)
-  # do stuff with row
-}
-
-d<- tibble(
-  name = letters[1:4], 
-  plate = c('P1', 'P2', 'P3','P4'), 
-  value1 = c(1:4),
-  value2 = c(1:4)*100
-)
-
-
-f <- function(x, output) {
-  wellName <- x[1]
-  plateName <- x[2]
-  wellID <- 1
-  print(paste(wellID, x[3], x[4], sep=","))
-  cat(paste(wellID, x[3], x[4], sep=","), file= output, append = T, fill = T)
-}
-
-apply(d, 1, f, output = 'outputfile')
-
-
-
-
-
-
-
-
-
-
-
-#tb_jurimetrics_dateini_dateend_by_subject <- tb_jurimetrics %>% group_by(subject_decoded) %>% summarise(date_ini = min(date),date_end = max(date))
-
-
-teste <- tb_jurimetrics %>%filter(subject_decoded == "1") %>% group_by(subject_decoded,year,month) %>% summarise(
-  tot_proc_month = sum(count)) %>% arrange(year,month,subject_decoded)
-
-
-tb_jurimetrics_by_year_month <- tb_jurimetrics %>% group_by(subject_decoded,year,month)
-
-
-tb_jurimetrics_by_year_month <- tb_jurimetrics_by_year_month %>% summarise(
-  tot_proc_month = sum(count)) %>% arrange(year,month,subject_decoded)
-
-
-
-
-
-
-
-
-by_subject_decoded_date <- tb_jurimetrics %>% group_by(subject_decoded,judgmentDate)
-
-tot_proc_dia <- by_subject_decoded_date %>% summarise(
-  tot_proc_dia = sum(count)) %>% arrange(subject_decoded,judgmentDate)
-
-
-tot_proc_dia <- tot_proc_dia %>%
-  pivot_wider(names_from = subject_decoded, values_from = tot_proc_dia, values_fill = list(tot_proc_dia = 0))
-
-tot_proc_dia2 <- tot_proc_dia %>% mutate(judgmentDate,  as.Date(judgmentDate)) 
-
-tot_proc_dia2 <- tot_proc_dia %>% mutate(judgmentDate2,  lubridate::dmy(judgmentDate)) 
-year()
-
-lubridate::year(tot_proc_dia2[,0,975])
-
-lubridate::dmy(x)
-
-tot_proc_dia$`1`
-
-tot_proc_dia[,1:2]
-
-min(tot_proc_dia$judgmentDate)
-
-max(tot_proc_dia$judgmentDate)
-
-class(as.Date(min(tot_proc_dia$judgmentDate)))
-
-dif_days <- as.Date(max(tot_proc_dia$judgmentDate)) - as.Date(min(tot_proc_dia$judgmentDate))
-
-ts(tot_proc_dia$`1`,frequency = 365, start = as.Date(min(tot_proc_dia$judgmentDate)), end= as.Date(max(tot_proc_dia$judgmentDate)))
-
-ts(tot_proc_dia[,1:2])
-
-
-as.Date(min(tot_proc_dia$judgmentDate)) - as.Date(max(tot_proc_dia$judgmentDate))
-
-
-seq(from = as.Date(min(tot_proc_dia$judgmentDate)), to = as.Date(max(tot_proc_dia$judgmentDate)), by = "day")
-
-print( ts(1:10, frequency = 7, start = c(12, 2)), calendar = TRUE)
-
-class(livestock)
-
-fits(livestock, show.sec.graph = F)
-
-tot_proc_dia
-
-
-fits(ts(tot_proc_dia[,1:2]))
-
-
 

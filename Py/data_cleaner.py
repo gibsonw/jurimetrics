@@ -7,9 +7,10 @@ import unicodedata
 import codecs
 
 
+
+pathData =  "C:\\PUCRS\\Especialização\\Jurimetrics\\jurimetrics\\data"
+pathFileDaySubject = pathData+'\\count_day_subject.csv'
 #pathFileDaySubject =  "https://raw.githubusercontent.com/gibsonw/jurimetrics/master/data/count_day_subject.csv"
-#pathFileDaySubject = pathData+'\\count_day_subject.csv'
-pathFileDaySubject =  "https://raw.githubusercontent.com/gibsonw/jurimetrics/master/data/count_day_subject.csv"
 df_count_day_subject = pd.read_csv(pathFileDaySubject,sep=",",encoding='UTF-8')
 
 del df_count_day_subject['Unnamed: 0']
@@ -28,12 +29,9 @@ df_count_day_subject['subject_decoded'] = df_count_day_subject['subject'].apply(
 
 del df_count_day_subject['subject']
 
-df_count_day_subject.to_csv('C:\\PUCRS\\Especialização\\Jurimetrics\\jurimetrics\\data\\count_day_subject_decoded.csv', index=False)
+#df_count_day_subject.to_csv('C:\\PUCRS\\Especialização\\Jurimetrics\\jurimetrics\\data\\count_day_subject_decoded.csv', index=False)
 
 
-
-
-df2 = df_count_day_subject.set_index(['judgmentDate'])[['subject_decoded','count']]
 
 
 import chart_studio.plotly as py
