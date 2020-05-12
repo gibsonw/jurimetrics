@@ -3,6 +3,8 @@
 #install.packages('lubridate')
 
 library(tidyverse)
+library("readr")
+
 #library(lubridate)
 #library(plyr)
 #library(dplyr)
@@ -39,14 +41,8 @@ tb_subject_decoded_ini_end_row <- tb_subject_decoded_ini_end_col %>% group_by(su
 
 # concatena o df original e o df com as datas com valores zerados 
 tb_jurimetrics_adj = bind_rows(tb_jurimetrics %>% select(subject_decoded,date,count), tb_subject_decoded_ini_end_row)
-write.table(tb_jurimetrics_adj , file = "C:\\PUCRS\\Especialização\\Jurimetrics\\jurimetrics\\data\\tb_jurimetrics_adj.csv")
+#write_delim(tb_jurimetrics_adj , "C:\\PUCRS\\Especialização\\Jurimetrics\\jurimetrics\\data\\tb_jurimetrics_adj.csv", delim = ";")
 
-
-col_name <- colnames(tb_jurimetrics_adj)
-
-'subject_decoded'        date       count
-
-#write_excel_csv2(tb_jurimetrics_adj, "C:\\PUCRS\\Especialização\\Jurimetrics\\jurimetrics\\data\\tb_jurimetrics_adj.csv", na = "", append = FALSE,col_names = col_name, delim = ";", quote_escape = "double")
 
 
 tb_jurimetrics_adj <- tb_jurimetrics_adj %>% mutate(year = lubridate::year(date),month = lubridate::month(date)) 
@@ -63,7 +59,8 @@ df_subject <- df_subject$subject_decoded
 
 l <- list() 
 
-for (i in 1:length(df_subject)) {
+#for (i in 1:length(df_subject)) {
+for (i in 1:100) {
   ts_1 <- tb_jurimetrics_adj %>% filter(subject_decoded == df_subject[i])
   ts(ts_1[,4])
   t <- fits(ts(ts_1[,4]),train = 0.85,show.main.graph = F,show.sec.graph = F) 
