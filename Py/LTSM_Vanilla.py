@@ -1,12 +1,13 @@
 
 import pandas as pd
 import numpy  as np
+import datetime as dt
+import string
 import math
 
 from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential 
 from keras.layers import Dense,LSTM
-from keras.layers import Dropout
 import matplotlib.pyplot as plt
 plt.style.use('fivethirtyeight')
 
@@ -109,29 +110,14 @@ def run_LTSM(*args):
 
 
 
-#Create the dataset, ensure all data is float.
-#Normalize the features.
-#Split into training and test sets.
-#Convert an array of values into a dataset matrix.
-#Reshape into X=t and Y=t+1.
-#Reshape input to be 3D (num_samples, num_timesteps, num_features).
+pathData =  "C:\\PUCRS\\Especialização\\Jurimetrics\\jurimetrics\\data"
+pathFileDaySubject = pathData+'\\tb_jurimetrics_adj.csv'
+#pathFileDaySubject =  "https://raw.githubusercontent.com/gibsonw/jurimetrics/master/data/count_day_subject.csv"
 
-
-def get_data_jurimetrics(frequency='MS'):
-    pathData =  "C:\\PUCRS\\Especialização\\Jurimetrics\\jurimetrics\\data"
-    pathFileDaySubject = pathData+'\\tb_jurimetrics_adj.csv'
-    #pathFileDaySubject =  "https://raw.githubusercontent.com/gibsonw/jurimetrics/master/data/count_day_subject.csv"
-
-    date_cols = ['date']
-    df_index = ['date']
-    df_jurimetric_subject = pd.read_csv(pathFileDaySubject,sep=";",encoding='UTF-8', index_col=df_index,parse_dates=['date'])
-    
-    return (df_jurimetric_subject.groupby(['subject_decoded']).resample(frequency).sum())
-
-
-df_jurimetric_subject_bymonth = get_data_jurimetrics('MS')
-
-
+date_cols = ['date']
+df_index = ['date']
+df_jurimetric_subject = pd.read_csv(pathFileDaySubject,sep=";",encoding='UTF-8', index_col=df_index,parse_dates=['date'])
+df_jurimetric_subject_bymonth = df_jurimetric_subject.groupby(['subject_decoded']).resample('MS').sum()
 
 df_jurimetric_subject_bymonth.loc[l_subject_decoded[4]].shape[0]
 
@@ -153,5 +139,30 @@ for i in range(0,50):
 
 
 
+
+#ds = df_jurimetric_subject_bymonth.loc[assunto].values
+#ds.shape
+
+
+
+ds[0:training_data_len,:]
+df_jurimetric_subject_bymonth.loc[assunto][:training_data_len]
+
+df_jurimetric_subject_bymonth.loc[assunto].values[0:training_data_len,:].shape
+
+ds[0:training_data_len,:]
+
+    train_data = sc_ds[0:training_data_len,:]
+
+    train = df_jurimetric_subject_bymonth.loc[assunto][:training_data_len] # dataset original
+
+
+# plot the pathData
+
+train = df_jurimetric_subject_bymonth.loc[assunto][:training_data_len] # dataset original
+valid = pd.DataFrame(df_jurimetric_subject_bymonth.loc[assunto][training_data_len:],dtype=np.float32)
+valid['pred'] = pd.DataFrame(y_pred.flatten(), index=valid.index, dtype=np.float32)
+
+plot_ts(train,valid)
 
 
