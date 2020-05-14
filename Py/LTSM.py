@@ -1,5 +1,9 @@
 
+import warnings
+warnings.filterwarnings('ignore')
+
 import pandas as pd
+pd.set_option('display.float_format', lambda x: '%.4f' % x)
 import numpy  as np
 import math
 
@@ -7,7 +11,16 @@ from sklearn.preprocessing import MinMaxScaler
 from keras.models import Sequential 
 from keras.layers import Dense,LSTM
 from keras.layers import Dropout
+from keras.callbacks import EarlyStopping
+
+from sklearn.metrics import mean_squared_error
+from sklearn.metrics import mean_absolute_error
+
 import matplotlib.pyplot as plt
+import seaborn as sns
+sns.set_context("paper", font_scale=1.3)
+sns.set_style('white')
+
 plt.style.use('fivethirtyeight')
 
 def plot_ts(*args,p_assunto= 'xx',p_rmse=.01):
@@ -23,7 +36,7 @@ def plot_ts(*args,p_assunto= 'xx',p_rmse=.01):
         plt.legend(['Train','Val','Predictions'],loc='best')
         plt.show()
 
-
+'''
 def run_LTSM(*args):
     _perc_train = .85
     #create a np array do dataframe original
@@ -106,7 +119,7 @@ def run_LTSM(*args):
     print('Registros Train {}, Registros Pred {}, Registros DF Original {}'.format(df_train.shape[0],df_valid.shape[0],ds.shape[0]))
 
     return (rmse,train,valid)
-
+'''
 
 
 #Create the dataset, ensure all data is float.
@@ -129,29 +142,132 @@ def get_data_jurimetrics(frequency='MS'):
     return (df_jurimetric_subject.groupby(['subject_decoded']).resample(frequency).sum())
 
 
-df_jurimetric_subject_bymonth = get_data_jurimetrics('MS')
+def create_datasets(ds,mode=train,nPeriods=0):
+    '''
+    nPeriods altera o tamnho da base de teste, 
+    > nPeriods menos colunas e maiores séries
+    < nPeriods mais colunas e menores séries
+    '''
+    #create a np array do dataframe original
+    dataset = ds
+    dataset = dataset.astype('float32')
+    #dataset = np.reshape(dataset, (-1, 1))
+    train_size = math.ceil(len(dataset))
+    # GW -> Never train on test data -> HOW TO NOT BE A AI IDIOT
+    # np.split(dataset, [math.ceil(.85 * len(dataset))])
+
+    X_train = []
+    Y_train = []
+
+    if (mode == 'train'):
+        if (math.ceil(train_size/2)-nPeriods < 2):
+            nColumns = math.ceil(train_size/2)
+            print('nPeriods muito grande, parametro será atualizado com valor : {}'.format(nColumns))
+        else:
+            nColumns = (math.ceil(train_size/2)-nPeriods)
+
+        for i in range(nColumns, train_size):
+            X_train.append(dataset[i-nColumns:i,0])
+            Y_train.append(dataset[i,0])
+
+    if (mode == 'test'):
+        for i in range(nPeriods,len(dataset)):
+            X_train.append(dataset[i-nPeriods:i,0])
+
+
+    X_train = np.array(X_train)
+    Y_train = np.array(Y_train)
+    print('X_train : ',X_train.shape)
+    print('Y_train : ',Y_train.shape)
+
+    return np.array(X_train), np.array(Y_train)
+
+
+def train_test_split(ds,nPeriods=12):
+    #create a np array do dataframe original
+    dataset_train = ds[0:len(ds)-nPeriods,:]
+    dataset_test  = ds[len(ds)-nPeriods:,:]
+    print('dataset:',ds.shape)
+    print('dataset_train:',dataset_train.shape)
+    print('dataset_test:',dataset_test.shape)
+    return dataset_train,dataset_test
+
+
+def lstm_timeseries_model(X_train,Y_train):
+
+    model = Sequential()
+    model.add(LSTM(50, input_shape=(X_train.shape[1],1)))
+    model.add(Dropout(0.2))
+    model.add(Dense(1))
+    model.compile(loss='mean_squared_error', optimizer='adam')
+    
+    history = model.fit(X_train, Y_train,batch_size=1,epochs=300)
+    
+    '''
+    history = model.fit(X_train, Y_train, epochs=20, batch_size=70, validation_data=(X_test, Y_test), 
+                        callbacks=[EarlyStopping(monitor='val_loss', patience=10)], verbose=1, shuffle=False)
+    '''
+    return model,history
 
 
 
-df_jurimetric_subject_bymonth.loc[l_subject_decoded[4]].shape[0]
+dataframe = get_data_jurimetrics('MS')
 
-assunto = l_subject_decoded[4]
-rmse,df_train,df_valid = run_LTSM(assunto,df_jurimetric_subject_bymonth)
+l_subject_decoded = dataframe.unstack().index
+subject = l_subject_decoded[2]
+# dataset inteiro
+dataset = dataframe.loc[subject].values
 
+scaler = MinMaxScaler(feature_range=(0, 1))
+dataset = scaler.fit_transform(dataset)
 
-l_subject_decoded = df_jurimetric_subject_bymonth.unstack().index
-
-for i in range(0,50):
-    assunto = l_subject_decoded[i]
-    qtdd_reg = df_jurimetric_subject_bymonth.loc[l_subject_decoded[i]].shape[0]
-    print ('Assunto : {} , Index : {}, Quantidade de Registros {}'.format(assunto,i,qtdd_reg))
-    if (qtdd_reg > 70):
-        #plot_ts(df_jurimetric_subject_bymonth.loc[assunto],p_assunto=assunto,p_rmse=.0)
-        rmse,df_train,df_valid = run_LTSM(assunto,df_jurimetric_subject_bymonth)
-        plot_ts(df_train,df_valid,p_assunto=assunto,p_rmse=rmse)
+# separa em base de treino e teste
+nPeriods=12
+dataset_train, dataset_test = train_test_split(dataset,nPeriods)
 
 
+# dataset_test é usado somente para verificar se a predição foi boa
+dataset_test.shape
+dataset_test = scaler.inverse_transform(dataset_test)
+dataset.shape[0]==dataset_train.shape[0]+dataset_test.shape[0]
 
+# pega a base de treino e retorna datasets pronto para testar
+ds_train, ds_test = train_test_split(dataset_train,nPeriods=12)
+
+dataset_train.shape[0]==ds_train.shape[0]+ds_test.shape[0]
+
+
+X_train, Y_train = create_datasets(ds_train,mode='train',nPeriods=15)
+
+# reshape input to be [samples, time steps, fe
+# atures]
+X_train = np.reshape(X_train, (X_train.shape[0],X_train.shape[1],1))
+X_train.shape
+
+model,history = lstm_timeseries_model(X_train, Y_train)
+
+
+
+X_test,_X = create_datasets(dataset_train,mode='test',nPeriods=model.input_shape[1])
+
+# vou passar a base inteira de treino dataset_train
+X_test = np.reshape(X_test, (X_test.shape[0],X_test.shape[1],1))
+X_test.shape
+
+
+y_pred = model.predict(X_test)
+y_pred = scaler.inverse_transform(y_pred)
+
+
+
+train = dataframe.loc[subject][:len(dataframe.loc[subject])-nPeriods]
+valid = dataframe.loc[subject][-nPeriods:].astype('float32')
+valid['pred'] = pd.DataFrame(y_pred[len(y_pred)-nPeriods:,:].flatten(), index=valid.index, dtype=np.float32)
+
+print('Train Mean Absolute Error:', mean_absolute_error(valid['count'], valid['pred']))
+print('Train Root Mean Squared Error:',np.sqrt(mean_squared_error(valid['count'], valid['pred'])))
+
+plot_ts(train,valid)
 
 
 

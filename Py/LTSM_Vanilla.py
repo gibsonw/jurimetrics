@@ -41,14 +41,11 @@ def run_LTSM(*args):
 
     x_train = []
     y_train = []
-
+    print('tamanho train_data',len(train_data))
     for i in range(60, len(train_data)):
         x_train.append(train_data[i-60:i,0])
         y_train.append(train_data[i,0])
     
-    #print('x_train',x_train)
-    #print('y_train',y_train)
-
     x_train = np.array(x_train)
     y_train = np.array(y_train)
     print('shape x_train :',x_train.shape)
@@ -88,9 +85,9 @@ def run_LTSM(*args):
 
     x_test = np.array(x_test)
 
-    print('matrix com lag de -1 no vertice z :',x_test.shape)
 
     x_test = np.reshape(x_test, (x_test.shape[0],x_test.shape[1],1))
+    print('shape x_teste :',x_test.shape)
 
     y_pred = model.predict(x_test)
     y_pred = scaler.inverse_transform(y_pred)
@@ -104,7 +101,7 @@ def run_LTSM(*args):
     valid = pd.DataFrame(args[1].loc[args[0]][training_data_len:],dtype=np.float32)
     valid['pred'] = pd.DataFrame(y_pred.flatten(), index=valid.index, dtype=np.float32)
 
-    print('Registros Train {}, Registros Pred {}, Registros DF Original {}'.format(df_train.shape[0],df_valid.shape[0],ds.shape[0]))
+    print('Registros Train {}, Registros Pred {}, Registros DF Original {}'.format(train.shape[0],valid.shape[0],ds.shape[0]))
 
     return (rmse,train,valid)
 
@@ -118,14 +115,13 @@ date_cols = ['date']
 df_index = ['date']
 df_jurimetric_subject = pd.read_csv(pathFileDaySubject,sep=";",encoding='UTF-8', index_col=df_index,parse_dates=['date'])
 df_jurimetric_subject_bymonth = df_jurimetric_subject.groupby(['subject_decoded']).resample('MS').sum()
+l_subject_decoded = df_jurimetric_subject_bymonth.unstack().index
 
 df_jurimetric_subject_bymonth.loc[l_subject_decoded[4]].shape[0]
 
-assunto = l_subject_decoded[4]
+assunto = l_subject_decoded[1]
 rmse,df_train,df_valid = run_LTSM(assunto,df_jurimetric_subject_bymonth)
 
-
-l_subject_decoded = df_jurimetric_subject_bymonth.unstack().index
 
 for i in range(0,50):
     assunto = l_subject_decoded[i]
