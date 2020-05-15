@@ -98,7 +98,9 @@ fnc_eval_err <-
 }
 
 
-fits <- function(x, train = 0.8,
+fits <- function(x, 
+                 train = 0.8,
+                 trainPeridos = 12,
                  steps = NULL,
                  max.points = 500,
                  show.main.graph = T,
@@ -117,6 +119,7 @@ fits <- function(x, train = 0.8,
   # train-test
   n <- length(x)
   i <- ceiling(train*n)
+  i <- n-trainPeridos
   xTrain <- 1:i
   xTest <- (i+1):n
   
