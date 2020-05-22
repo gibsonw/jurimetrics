@@ -54,22 +54,96 @@ tb_jurimetrics_adj <- tb_jurimetrics_adj %>% group_by(subject_decoded,year,month
 # cria df com assuntos  
 df_subject <- tb_jurimetrics_adj[,1] %>% select(subject_decoded) %>% group_by(subject_decoded) %>% distinct()
 #  cria df com assuntos
-df_subject <- tb_jurimetrics_adj[,1] %>% group_by(subject_decoded) %>% tally() %>% filter(n > 12)
+df_subject <- tb_jurimetrics_adj[,1] %>% group_by(subject_decoded) %>% tally() %>% filter(n > 20)
 df_subject <- df_subject$subject_decoded
 
-l <- list() 
+df_subject
 
-#for (i in 1:length(df_subject)) {
-for (i in 1:100) {
+l <- list() 
+df_mesures <- data.frame()
+df_pred_values <- data.frame()
+df_aic_values <- data.frame()
+
+for (i in 1:length(df_subject)) {
+#for (i in 1:10) {
   ts_1 <- tb_jurimetrics_adj %>% filter(subject_decoded == df_subject[i])
   ts(ts_1[,4])
-  t <- fits(ts(ts_1[,4]),train = 0.85,show.main.graph = F,show.sec.graph = F) 
+  t <- fits(ts(ts_1[,4]),train = 0.85,trainPeridos = 12,show.main.graph = F,show.sec.graph = F) 
   
   l[[df_subject[[i]]]] <- t
-}
 
-i <- 272
-ts_1 <- tb_jurimetrics_adj %>% filter(subject_decoded == df_subject[i])
+  
+  t$all_fnc_err$subject <- df_subject[i]
+  t$all_fnc_err$best_model <- t$best.model
+  df_mesures <- rbind(df_mesures,t$all_fnc_err)
+
+  
+  tmp_df_pred_values <- data.frame()
+  tmp_df_pred_values <- data.frame(t$Y_pred_aa)
+  tmp_df_pred_values$y_pred_ets <- data.frame(t$Y_pred_ets)
+  tmp_df_pred_values$y_pred_tb  <- data.frame(t$Y_pred_tb)
+  tmp_df_pred_values$y_pred_nn  <- data.frame(t$Y_pred_nn)
+  tmp_df_pred_values$subject    <- df_subject[i]
+  tmp_df_pred_values$best.model <- t$best.model
+  df_pred_values <- rbind(df_pred_values,tmp_df_pred_values)
+  
+  
+  tmp_df_aic_values <- data.frame()
+  tmp_df_aic_values <- data.frame(t$aic) 
+  tmp_df_aic_values$subject    <- df_subject[i]
+  tmp_df_aic_values$best.model <- t$best.model
+  df_aic_values <- rbind(df_aic_values,tmp_df_aic_values)
+  
+  }
+
+l
+
+write_delim(df_mesures , "C:\\PUCRS\\Especialização\\Jurimetrics\\jurimetrics\\data\\df_mesures.csv", delim = ";")
+
+df_pred_values$t.Y_pred_aa <- round(df_pred_values$t.Y_pred_aa,6)
+df_pred_values$y_pred_ets <- round(df_pred_values$y_pred_ets,6)
+df_pred_values$y_pred_tb <- round(df_pred_values$y_pred_tb,6)
+df_pred_values$y_pred_nn <- round(df_pred_values$y_pred_nn,6)
+
+write_delim(df_pred_values , "C:\\PUCRS\\Especialização\\Jurimetrics\\jurimetrics\\data\\df_pred_values.csv", delim = ";")
+write_delim(df_aic_values , "C:\\PUCRS\\Especialização\\Jurimetrics\\jurimetrics\\data\\df_aic_values.csv", delim = ";")
+
+
+i <- 187
+subject <- 'telefonia'
+ts_1 <- tb_jurimetrics_adj %>% filter(subject_decoded == subject)
 ts(ts_1[,4])
-t <- fits(ts(ts_1[,4]),train = 0.85,show.main.graph = F,show.sec.graph = F) 
+t2 <- fits(ts(ts_1[,4]),train = 0.85,trainPeridos = 12,show.main.graph = F,show.sec.graph = T) 
 
+t2
+
+
+t2$all_fnc_err
+t2$all_fnc_err$subject <- 'x'
+t2$all_fnc_err$best_model <- t2$best.model
+df_mesures <- rbind(df_mesures,t2$all_fnc_err)
+
+df_pred_values <- data.frame()
+
+df_pred_values <- data.frame(t2$Y_pred_aa)
+df_pred_values$y_pred_ets <- data.frame(t2$Y_pred_ets)
+df_pred_values$y_pred_tb <- data.frame(t2$Y_pred_tb)
+df_pred_values$y_pred_nn <- data.frame(t2$Y_pred_nn)
+df_pred_values$subject <- 'ddd'
+df_pred_values <- t2$best.model
+
+  
+t2$best.model
+
+
+
+
+
+
+
+t <- "acidente de trabalho"
+ts_1 <- tb_jurimetrics_adj %>% filter(subject_decoded == t)
+ts(ts_1[,4])
+t <- fits(ts(ts_1[,4]),train = 0.85,show.main.graph = T,show.sec.graph = F) 
+
+t$all_fnc_err$pred.nn.rmse

@@ -10,13 +10,9 @@ warnings.filterwarnings('ignore')
 from time import time
 import matplotlib.ticker as tkr
 from scipy import stats
-from statsmodels.tsa.stattools import adfuller
-from sklearn import preprocessing
-from statsmodels.tsa.stattools import pacf
+from scipy.stats import normaltest,kurtosis,skew,probplot
 
-import math
-import datetime
-datetime.datetime.strptime
+from statsmodels.tsa.stattools import pacf,adfuller
 
 from . import get_data_jurimetrics 
 from . import get_data_jurimetrics_top_subjects 
@@ -34,7 +30,7 @@ df_subject.describe()
 
 df_subject_measures = get_data_measures_subjects(df_subject)
 
-df_subject_measures.to_csv('C:\\PUCRS\\Especialização\\Jurimetrics\\jurimetrics\\data\\df_subject_measures.csv',sep=";",index=True)
+df_subject_measures.to_csv('C:\\PUCRS\\Especialização\\Jurimetrics\\data\\df_subject_measures.csv',sep=";",index=True)
 
 dash_jurimetrics_subject(df_subject,'adicional de horas extras')
  

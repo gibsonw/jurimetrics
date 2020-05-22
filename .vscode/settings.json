@@ -1,6 +1,6 @@
 {
     "python.pythonPath": "C:\\Users\\gibso\\Anaconda3\\python.exe",
-    "python.dataScience.jupyterServerURI": "http://localhost:8888/?token=fa95bf06148f9289d1a925b4db665c61fb498ff8f00edc14",
+    "python.dataScience.jupyterServerURI": "http://127.0.0.1:8888/?token=ddd61c76d2d70e7c1da0483d79447b488cb4be0272e400b0",
     "python.dataScience.jupyterCommandLineArguments": [],
     "python.testing.cwd": ""
 }

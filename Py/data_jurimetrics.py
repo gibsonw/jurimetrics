@@ -1,3 +1,4 @@
+'''
 # data_jurimetrics.py
 import pandas as pd
 import numpy  as np
@@ -7,9 +8,10 @@ from scipy.stats import normaltest,kurtosis,skew,probplot
 from statsmodels.tsa.stattools import adfuller
 import seaborn as sns
 import matplotlib.pyplot as plt
+'''
 
 def get_data_jurimetrics(frequency='MS'):
-    pathData =  "C:\\PUCRS\\Especialização\\Jurimetrics\\jurimetrics\\data"
+    pathData =  "C:\\PUCRS\\Especialização\\Jurimetrics\\data"
     pathFileDaySubject = pathData+'\\tb_jurimetrics_adj.csv'
     #pathFileDaySubject =  "https://raw.githubusercontent.com/gibsonw/jurimetrics/master/data/count_day_subject.csv"
 
